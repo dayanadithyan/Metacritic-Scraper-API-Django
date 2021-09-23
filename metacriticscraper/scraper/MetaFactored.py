@@ -4,7 +4,6 @@
 
 import numpy as np
 import pandas as pd
-from sys import exit
 import time
 import re
 import random
@@ -35,9 +34,9 @@ class MetaCriticSraperTool(object):
 
         self.chrome_options.add_argument("--headless")
         
-        self.chrome_options.binary_location = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+        #self.chrome_options.binary_location = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
         
-        self.driver = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', chrome_options=self.chrome_options)
+        self.driver = webdriver.Chrome('./chromedriver', chrome_options=self.chrome_options)
 
         
         
@@ -117,36 +116,36 @@ class MetaCriticSraperTool(object):
         return self.main_list
     
     
-        # def get_no_pages(self):
+    def get_no_pages(self):
             
-        #     '''
-        #     Gets the numbers of pages for the product to figure out pagination range
-        #     '''
+        '''
+        Gets the numbers of pages for the product to figure out pagination range
+        '''
+    
+        self.product_title = self.driver.find_element_by_css_selector('div[class="product_title"]').text
         
-        # self.product_title = self.driver.find_element_by_css_selector('div[class="product_title"]').text
+        number_of_pages = self.driver.find_element_by_css_selector('li[class="page last_page"]').text
         
-        # number_of_pages = driver.find_element_by_css_selector('li[class="page last_page"]').text
+        number_of_pages = re.findall(r'\d+',number_of_pages)
         
-        # number_of_pages = re.findall(r'\d+',number_of_pages)
+        page_count = int(number_of_pages[0])
         
-        # page_count = int(number_of_pages[0])
-        
-        # num_reviews = 100 * page_count
-        
-        # # print(f"{product_title} has {page_count} pages of reviews. \nThat's approximately {num_reviews} reviews!")
-        
-        # return page_count
+        num_reviews = 100 * page_count
+    
+    # print(f"{product_title} has {page_count} pages of reviews. \nThat's approximately {num_reviews} reviews!")
+    
+        return page_count
 
 
     # ## Section 2: Main scraping function
 
-    def main_scraper(self):
+    def main_scraper(self,url):
         
         '''
         Scrapes each page using BS4 and paginates till end
         '''
 
-        self.load_website()
+        self.load_website(url)
 
         self.reviews = []
 
@@ -158,22 +157,29 @@ class MetaCriticSraperTool(object):
 
             self.get_page_source()
 
-            soup,page,tree = self.make_soup()
+            self.soup,self.page,self.tree = self.make_soup()
 
-            reviews_in_page = self.extract_reviews_from_page(soup)
+            reviews_in_page = self.extract_reviews_from_page()
+            
+            for element in reviews_in_page:
 
-            self.reviews.append(reviews_in_page)
-
+                self.reviews.append(element)
+        
             current_page += 1
 
             # print(f'Page {current_page} complete. Moving onto next page ...')
 
             self.click_next()
             
+        #print(type(self.reviews))
+        
+        # print(self.reviews[1][1])
+            
         return self.reviews
     
     
     def make_dataframe(self):
+        
         
         self.df = pd.DataFrame(self.reviews)
         
@@ -209,7 +215,7 @@ class MetaCriticSraperTool(object):
 
         ls2 = []
 
-        for index, row in self.iterrows():
+        for index, row in self.df.iterrows():
             ls.append(row['review'])
 
         for review in ls:
@@ -222,7 +228,7 @@ class MetaCriticSraperTool(object):
         return self.df
     
     
-    def is_english(string):
+    def is_english(self,string):
         '''
         Determine if string is English or not
         '''
@@ -259,7 +265,7 @@ class MetaCriticSraperTool(object):
         return self.df
         
 
-    def save_file_and_exit(request,self):
+    def save_file_and_exit(self):
 
         # product_name = driver.find_element_by_css_selector('div[class="product_title"]').text
 
@@ -269,31 +275,35 @@ class MetaCriticSraperTool(object):
 
         # exit()
         
-        return self.df.to_csv('MetacriticReviews_.csv')
+        self.df.to_csv('MetacriticReviews_.csv')
+        
+        return None
 
-    def run_scraper(self):
+    def run_scraper(self,url):
     
     # product_name = product_name(driver)
+    
+        #load_website(url)
 
-        all_reviews = self.main_scraper()
+        all_reviews = self.main_scraper(url)
 
-        final_list = []
+        # final_list = []
 
-        for page_of_reviews in all_reviews:
-            for review in page_of_reviews:
-                final_list.append(review)
+        # for page_of_reviews in all_reviews:
+        #     for review in page_of_reviews:
+        #         final_list.append(review)
 
         self.driver.close()
 
-        df = self.make_dataframe(final_list)
+        df = self.make_dataframe()
         
-        cleaned_1 = self.lean_ratings(df)
+        cleaned_1 = self.clean_ratings()
         
-        cleaned_2 = self.clean_review(cleaned_1)
+        cleaned_2 = self.clean_review()
         
-        clean = self.remove_foreign_langs(cleaned_2)
+        clean = self.remove_foreign_langs()
 
-        return self.save_file_and_exit(clean)
+        return self.save_file_and_exit()
     
   
         
