@@ -6,6 +6,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django import forms
 from . import MetaFactored
+#from MetaFactored import MetaCriticSraperTool
 from .forms import metaURL
 import csv
 import pandas as pd
@@ -20,6 +21,8 @@ def index(request):
 def get_url(request):
 
     # if this is a POST request we need to process the form data
+    
+    print(request)
 
     if request.method == 'POST':
 
@@ -31,44 +34,35 @@ def get_url(request):
 
         if form.is_valid():
 
-            user_url = form.cleaned_data['meta_url']
+            user_url = form.cleaned_data['metaurl']
             # process the data in form.cleaned_data as required
             ## the metacritic_scraper will run in here
 
-            scrapy = MetaFactored(url=user_url)
+            scrapy = MetaFactored.MetaCriticSraperTool(url=user_url)
 
-            scrapy.run_scraper()
+            scrapy.run_scraper(user_url)
 
             data = pd.read_csv('MetacriticReviews_.csv')
 
-            response = HttpResponse(data, mimetype='application/x-download')
+            response = HttpResponse("File processed successfully!")
 
-            response['Content-Disposition'] = 'attachment; MetacriticReviews_.csv'
+            #response['Content-Disposition'] = 'attachment; MetacriticReviews_.csv'
 
             return response
         
         else:
+            
+            print(form.errors)
 
             return HttpResponse("Bad Request")
 
 def scraper(request):
     
-    yield render(request,"scraper/index.html")
+    print(request)
     
-    return get_url()
-
-
-
-
-
-            
-  
-
+    return render(request,"scraper/index.html")
     
-    
-    
-
-
+   # return get_url()
 
       
 # def metacritic_scraper(request):
