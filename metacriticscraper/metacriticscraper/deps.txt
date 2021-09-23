@@ -1,6 +1,7 @@
 pandas 
 selenium 
 bs4 
-lxml 
+lxml
+django
 
 
