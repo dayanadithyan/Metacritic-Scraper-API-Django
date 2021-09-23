@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>
+            Metacritic Scraper
+        </title>
+    </head>
+    <body>
+        <h1>Let's get scraping!</h1>
+
+        <h2>Enter metacritic URL you wish to scrape</h2>
+
+        <form action = "/scraper/meta" method = "post">
+
+            {% csrf_token %}
+
+            <label for="metaurl">URL: </label>
+
+            <input type = "text" name = "metaurl">
+
+            <input type = "submit">
+
+        </form>
+
+
+    </body>
+</html>
