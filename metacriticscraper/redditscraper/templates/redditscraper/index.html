@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>
+            Reddit Scraper
+        </title>
+    </head>
+    <body>
+        <h1>Let's get scraping!</h1>
+
+        <h2>Enter Subreddit and topics you wish to scrape</h2>
+
+        <form action = "/redditx/get_queries" method = "post">
+
+            {% csrf_token %}
+
+            <label for="subr">Subs: </label>
+
+            <input type = "text" name = "subreddits">
+
+            <label for="subq">Topic: </label>
+
+            <input type = "text" name = "queries">
+
+            <input type = "submit">
+
+        </form>
+
+
+    </body>
+</html>
