@@ -18,11 +18,13 @@ def index(request):
     
     return HttpResponse("Home")
 
+def scraper(request):
+        
+    return render(request,"scraper/index.html")
+
 def get_url(request):
 
     # if this is a POST request we need to process the form data
-    
-    print(request)
 
     if request.method == 'POST':
 
@@ -42,7 +44,7 @@ def get_url(request):
 
             scrapy.run_scraper(user_url)
 
-            data = pd.read_csv('MetacriticReviews_.csv')
+            #data = pd.read_csv('MetacriticReviews_.csv')
 
             response = HttpResponse("File processed successfully!")
 
@@ -52,15 +54,10 @@ def get_url(request):
         
         else:
             
-            print(form.errors)
-
             return HttpResponse("Bad Request")
+        
 
-def scraper(request):
-    
-    print(request)
-    
-    return render(request,"scraper/index.html")
+   
     
    # return get_url()
 

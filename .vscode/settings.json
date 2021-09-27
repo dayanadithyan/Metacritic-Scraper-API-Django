@@ -2,6 +2,7 @@
     "conventionalCommits.scopes": [
         ".gitignore",
         "django",
-        "metacritic-scraper-module"
+        "metacritic-scraper-module",
+        "reddit"
     ]
 }
